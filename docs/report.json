@@ -1,0 +1,107 @@
+{
+  "versions": {
+    "restic": "0.16.4",
+    "age": "1.1.1",
+    "python": "3.13.16",
+    "platform": "linux"
+  },
+  "seed": 7,
+  "size": {
+    "files": 60,
+    "source_bytes": 15349078,
+    "init_seconds": 2.62,
+    "first_backup": {
+      "seconds": 0.83,
+      "added_bytes": 15374734
+    },
+    "unchanged_backup": {
+      "seconds": 0.71,
+      "added_bytes": 362,
+      "files_changed": 0
+    },
+    "after_editing_5_percent": {
+      "files_edited": 3,
+      "added_bytes": 314144,
+      "files_changed": 3
+    },
+    "repository_data_bytes": 11378789,
+    "age_unlock_ms": 2.8,
+    "verify_all_files": {
+      "ok": true,
+      "files": 60,
+      "compared": 60,
+      "seconds": 2.65
+    }
+  },
+  "detection": {
+    "trials": 40,
+    "check 5% of data, restore 1 file": {
+      "detected": 16,
+      "trials": 40,
+      "missed_in_pack_header": 0,
+      "missed_but_found_through_the_first_snapshot": 5,
+      "low": 0.263,
+      "high": 0.554
+    },
+    "check 5% of data, restore all files": {
+      "detected": 39,
+      "trials": 40,
+      "missed_in_pack_header": 0,
+      "missed_but_found_through_the_first_snapshot": 1,
+      "low": 0.871,
+      "high": 0.996
+    },
+    "check 100% of data, restore 1 file": {
+      "detected": 40,
+      "trials": 40,
+      "missed_in_pack_header": 0,
+      "missed_but_found_through_the_first_snapshot": 0,
+      "low": 0.912,
+      "high": 1.0
+    },
+    "index file": {
+      "detected": 20,
+      "trials": 20,
+      "low": 0.839,
+      "high": 1.0,
+      "metadata_only_flips": 0,
+      "metadata_only_detected": 0
+    },
+    "snapshot file": {
+      "detected": 20,
+      "trials": 20,
+      "low": 0.839,
+      "high": 1.0,
+      "metadata_only_flips": 0,
+      "metadata_only_detected": 0
+    },
+    "key file": {
+      "detected": 28,
+      "trials": 28,
+      "low": 0.879,
+      "high": 1.0,
+      "metadata_only_flips": 12,
+      "metadata_only_detected": 9
+    }
+  },
+  "rotation": {
+    "rotations": 6,
+    "median_seconds": 10.72,
+    "old_password_rejected": 6,
+    "single_key_left": 6,
+    "verify_ok_after": 6,
+    "old_passwords_that_still_open": 0,
+    "recovery_key_always_opens": true
+  },
+  "secrets": {
+    "files_scanned": 20,
+    "passwords_checked": 7,
+    "files_containing_a_password": [],
+    "private_files_with_loose_permissions": []
+  },
+  "scenarios": {
+    "correct": 8,
+    "total": 8,
+    "failed": []
+  }
+}

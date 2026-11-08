@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  # fail instead of skipping when restic or age is missing
+  ENCBACKUP_REQUIRE_TOOLS: "1"
+
+jobs:
+  test:
+    name: test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install restic and age
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y restic age
+          restic version
+          age --version
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy
+      - run: pytest -n auto --cov
+
+  windows:
+    # restic and age are not installed here: the tests that need them are skipped on purpose,
+    # everything else (configuration, path mapping, status, redaction) runs.
+    name: test (Windows, without restic)
+    runs-on: windows-latest
+    env:
+      ENCBACKUP_REQUIRE_TOOLS: "0"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - run: pip install -e ".[dev]"
+      - run: pytest -n auto
+
+  evaluation:
+    name: measured quality (real restic and age)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: sudo apt-get update && sudo apt-get install -y restic age
+      - run: pip install -e ".[dev]"
+      - name: Damaged repositories, rotation, secrets at rest, scenarios
+        run: |
+          python tools/evaluate.py --files 40 --trials 12 --rotations 3 | tee eval.txt
+          grep -q "scenarios correct:" eval.txt
+          awk '/scenarios correct:/ { if ($3 != $5) exit 1 }' eval.txt
+          grep -q "old passwords that still open the repository: 0" eval.txt
+          grep -q "unexpected exceptions: 0" eval.txt
+
+  docker:
+    name: docker image
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t encbackup .
+      - name: init, backup, verify, rotate, restore (read-only, no capabilities)
+        run: tools/docker_e2e.sh encbackup
+
+  docker-windows:
+    # the same flow driven from PowerShell, to keep that script honest (Linux container on the runner)
+    name: docker flow from PowerShell
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t encbackup .
+      - name: PowerShell script
+        shell: pwsh
+        run: ./tools/docker_e2e.ps1 -Image encbackup

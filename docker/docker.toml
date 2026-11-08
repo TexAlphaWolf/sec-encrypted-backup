@@ -1,0 +1,18 @@
+# Defaults of the Docker image. Mount the data to protect at /data (read-only is fine)
+# and a volume at /state; or mount your own file and set ENCBACKUP_CONFIG.
+repository = "/state/repo"
+vault = "/state/vault"
+identity = "/state/host.key"
+
+[backup]
+paths = ["/data"]
+
+[retention]
+daily = 7
+weekly = 4
+monthly = 6
+
+[verify]
+data_subset = "5%"
+sample_files = 200
+max_age_hours = 26

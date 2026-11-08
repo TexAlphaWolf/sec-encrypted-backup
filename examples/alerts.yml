@@ -1,0 +1,16 @@
+# Prometheus alert rules for the metrics of `encbackup status --format prometheus`
+# (write them with a cron job or systemd unit into node_exporter's textfile directory).
+groups:
+  - name: encbackup
+    rules:
+      - alert: BackupNotOk
+        expr: encbackup_ok == 0
+        for: 10m
+        labels: { severity: critical }
+        annotations:
+          summary: "Backup on {{ $labels.instance }} is stale, failing or failed its restore test"
+      - alert: BackupNotVerified
+        expr: time() - encbackup_verify_timestamp_seconds > 8 * 86400
+        labels: { severity: warning }
+        annotations:
+          summary: "No restore verification for over a week on {{ $labels.instance }}"

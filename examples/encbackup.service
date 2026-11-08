@@ -1,0 +1,13 @@
+[Unit]
+Description=Encrypted backup, then verification by restore
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/encbackup -c /etc/encbackup/encbackup.toml backup --verify
+# restic and age need no privileges beyond reading the data
+Nice=10
+IOSchedulingClass=idle
+NoNewPrivileges=yes
+ProtectHome=read-only
+PrivateTmp=yes

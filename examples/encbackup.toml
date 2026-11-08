@@ -1,0 +1,32 @@
+# encbackup configuration. Relative paths are relative to this file; backup paths must be absolute.
+
+# Anything restic accepts: a directory, sftp:user@host:/path, s3:..., rest:https://..., rclone:...
+# Credentials for remote back ends come from the environment (AWS_ACCESS_KEY_ID, ...), not from here.
+repository = "/mnt/backup/restic"
+
+# Holds the age-encrypted repository password, the recipient list and a journal. Not secret, but
+# keep a copy somewhere else too: with the recovery identity it is all you need after a disaster.
+vault = "/etc/encbackup"
+
+# This machine's age identity (a secret). Created by `encbackup init` if it does not exist.
+identity = "/etc/encbackup/host.key"
+
+[backup]
+paths = ["/home", "/etc", "/var/lib/important"]
+exclude = ["/home/*/.cache", "*.tmp"]
+tags = ["nightly"]
+one_file_system = true
+
+[retention]            # applied after every backup; leave the table out to keep everything
+last = 3
+daily = 7
+weekly = 4
+monthly = 12
+yearly = 2
+prune = true
+
+[verify]
+data_subset = "5%"     # how much stored data `verify` reads back: 5%, 1/10 or 500M
+sample_files = 200     # files restored and compared with the live ones (0 = all)
+max_age_hours = 26     # `status` calls a backup older than this a problem
+timeout_hours = 6      # limit for any single restic command
