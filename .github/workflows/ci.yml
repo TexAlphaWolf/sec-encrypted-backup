@@ -77,7 +77,7 @@ jobs:
       - uses: actions/checkout@v7
       - run: docker build -t encbackup .
       - name: init, backup, verify, rotate, restore (read-only, no capabilities)
-        run: tools/docker_e2e.sh encbackup
+        run: bash tools/docker_e2e.sh encbackup
 
   docker-windows:
     # the same flow driven from PowerShell, to keep that script honest (Linux container on the runner)

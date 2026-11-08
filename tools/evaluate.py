@@ -90,6 +90,7 @@ def flip(path: Path, rng: random.Random, kind: str) -> dict[str, Any]:
         info["in_metadata"] = at < bytes(raw).find(
             b'"kdf"'
         )  # created, username, hostname: not authenticated
+    path.chmod(0o600)  # restic 0.18 stores files read-only
     path.write_bytes(bytes(raw))
     return info
 

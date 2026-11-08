@@ -80,6 +80,12 @@ def test_excludes_and_tags(world: World) -> None:
 # ---- verify -----------------------------------------------------------------------------------
 
 
+def rewrite(path: Path, data: bytes) -> None:
+    """restic 0.18 makes stored files read-only; damage them anyway."""
+    path.chmod(0o600)
+    path.write_bytes(data)
+
+
 def packs(cfg_repo: str) -> list[Path]:
     return sorted(p for p in (Path(cfg_repo) / "data").rglob("*") if p.is_file())
 
@@ -114,7 +120,7 @@ def test_corrupted_data_is_caught_by_a_full_read(ready: World) -> None:
     victim = max(packs(ready.cfg.repository), key=lambda p: p.stat().st_size)
     raw = bytearray(victim.read_bytes())
     raw[len(raw) // 2] ^= 0xFF
-    victim.write_bytes(bytes(raw))
+    rewrite(victim, bytes(raw))
     rep = verify.run(ready.cfg, full=True)
     assert not rep.ok
     assert any(c.name == "repository check" and not c.ok for c in rep.checks)
@@ -126,7 +132,7 @@ def test_a_restore_that_cannot_be_read_back_fails(ready: World) -> None:
         raw = bytearray(p.read_bytes())
         for i in range(0, len(raw), 997):
             raw[i] ^= 0xA5
-        p.write_bytes(bytes(raw))
+        rewrite(p, bytes(raw))
     rep = verify.run(ready.cfg, subset="0%" if False else None)
     assert not rep.ok
 
@@ -134,7 +140,7 @@ def test_a_restore_that_cannot_be_read_back_fails(ready: World) -> None:
 def test_a_truncated_pack_is_caught(ready: World) -> None:
     backup.run(ready.cfg)
     victim = packs(ready.cfg.repository)[0]
-    victim.write_bytes(victim.read_bytes()[:100])
+    rewrite(victim, victim.read_bytes()[:100])
     assert not verify.run(ready.cfg, full=True).ok
 
 
