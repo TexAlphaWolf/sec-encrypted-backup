@@ -246,7 +246,7 @@ def section_detection(cfg: Config, work: Path, trials: int, seed: int) -> dict[s
     return out
 
 
-def section_rotation(cfg: Config, work: Path, rounds: int) -> dict[str, Any]:
+def section_rotation(cfg: Config, work: Path, rounds: int) -> tuple[dict[str, Any], list[str]]:
     old_passwords: list[str] = []
     times: list[float] = []
     ok_old_rejected = ok_verify = ok_one_key = 0
@@ -272,8 +272,7 @@ def section_rotation(cfg: Config, work: Path, rounds: int) -> dict[str, Any]:
         "verify_ok_after": ok_verify,
         "old_passwords_that_still_open": still_open,
         "recovery_key_always_opens": identities_open,
-        "_passwords": old_passwords,
-    }
+    }, old_passwords
 
 
 def section_secrets(cfg: Config, work: Path, passwords: list[str]) -> dict[str, Any]:
@@ -438,8 +437,7 @@ def main() -> int:
         report["detection"] = section_detection(cfg, work, args.trials, args.seed)
 
         print("\n3. Key rotation")
-        rot = section_rotation(cfg, work, args.rotations)
-        passwords = rot.pop("_passwords")
+        rot, passwords = section_rotation(cfg, work, args.rotations)
         report["rotation"] = rot
         print(
             f"  {rot['rotations']} rotations, median {rot['median_seconds']} s; old password rejected {rot['old_password_rejected']} of {rot['rotations']}; one key left {rot['single_key_left']} of {rot['rotations']}"
