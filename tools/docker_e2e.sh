@@ -13,7 +13,7 @@ head -c 200000 /dev/urandom > "$WORK/data/sub/random.bin"
 chmod -R a+rX "$WORK/data"
 
 RUN=(docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges --tmpfs /tmp
-     -v "$VOL":/state -v "$WORK/data":/data:ro)
+     -v "$VOL":/state -v "$WORK/data":/data:ro "$IMAGE")
 
 # the volume is created from the image, owned by the unprivileged user
 [ "$(docker run --rm --entrypoint id "$IMAGE" -u)" != 0 ]
